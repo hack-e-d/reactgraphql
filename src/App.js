@@ -1,20 +1,13 @@
 import github from "./db";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
+import githubQuery from "./Ouery";
 
 
 function App() {
 
-  useEffect(() => {
-    const githubQuery = {
-      query: `
-      {
-        viewer {
-          name
-        }
-      }
-    ` 
-    };
+  let [userName, setUserName] = useState("");
 
+  const fetchData = useCallback( ( )=> {
     fetch(github.baseURL, {
       method: "POST",
       headers: github.headers,
@@ -22,17 +15,25 @@ function App() {
     }) 
     .then((response) => response.json())
     .then((data) => {
+      setUserName(data.data.viewer.name);
       console.log(data);
     })
     .catch((error) =>{
       console.error(error);
     });
-  });
-
+  }, []);
   
+  useEffect(() => {
+    fetchData();
+    
+  }, [fetchData]);
+    
   return (
     <div className="App container mt-5">
       <h1 className="text-primary"><i className="bi bi-diagram-2-fill"></i> Repos </h1>
+      <p>
+        Hey there {userName}
+      </p>
     </div>
   );
 }
