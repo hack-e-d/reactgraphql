@@ -1,6 +1,7 @@
 import github from "./db";
 import { useEffect, useState, useCallback } from "react";
 import githubQuery from "./Ouery";
+import RepoInfo from "./RepoInfo"
 
 
 function App() {
@@ -17,8 +18,9 @@ function App() {
     .then((response) => response.json())
     .then((data) => {
       const viewer = data.data.viewer;
+      const repos = data.data.search.nodes;
       setUserName(viewer.name);
-      setRepoList(viewer.repositories.nodes);
+      setRepoList(repos);
       console.log(data);
     })
     .catch((error) =>{
@@ -42,14 +44,7 @@ function App() {
           <ul className="list-group list-group-flush">
             {
               repoList.map((repo) => (
-                <li className="list-group-item" key={repo.id.toString()}>
-                  <a className="h5 mb-0 text-decoration-none" href={repo.url} target="_blank">
-                    {repo.name}
-                  </a>
-                  <p className="small">
-                    {repo.description}
-                  </p>
-                </li>
+                <RepoInfo key={repo.id} repo={repo} />
               )
             )
         }
