@@ -12,9 +12,15 @@ function App() {
   let [pageCount, setPageCount] = useState(10);
   let [queryString, setqueryString] = useState("");
   let [totalCount, settotalCount] = useState(null);
+  let [startCursor, setStartCursor] = useState(null);
+  let [endCursor, setEndCursor] = useState(null);
+  let [hasPreviousPage, setHaspreviousPage] = useState(false);
+  let [hasNextPage, setHasnextPage] = useState(true);
+  let [paginationKeyword, setPaginationKeyword] = useState("first");
+  let [paginationString, setPaginationString] = useState("");  
 
   const fetchData = useCallback( ( )=> {
-    const queryText = JSON.stringify(githubQuery(pageCount, queryString));
+    const queryText = JSON.stringify(githubQuery(pageCount, queryString, paginationKeyword, paginationString));
 
     fetch(github.baseURL, {
       method: "POST",
@@ -24,17 +30,26 @@ function App() {
     .then((response) => response.json())
     .then((data) => {
       const viewer = data.data.viewer;
-      const repos = data.data.search.nodes;
+      const repos = data.data.search.edges;
       const total = data.data.search.repositoryCount;
+      const start = data.data.search.pageInfo?.startCursor;
+      const end = data.data.search.pageInfo?.endCursor;
+      const next = data.data.search.pageInfo?.hasNextPage;
+      const prev = data.data.search.pageInfo?.hasPreviousPage;
+
       settotalCount(total);
       setUserName(viewer.name);
       setRepoList(repos);
+      setStartCursor(start);
+      setEndCursor(end);
+      setHasnextPage(next);
+      setHaspreviousPage(prev);
       // console.log(data);
     })
     .catch((error) =>{
       console.error(error);
     });
-  }, [pageCount, queryString]);
+  }, [pageCount, queryString, paginationKeyword, paginationString]);
   
   useEffect(() => {
     fetchData();
@@ -61,7 +76,7 @@ function App() {
           <ul className="list-group list-group-flush">
             {
               repoList.map((repo) => (
-                <RepoInfo key={repo.id} repo={repo} />
+                <RepoInfo key={repo.node.id} repo={repo.node} />
               )
             )
         }
