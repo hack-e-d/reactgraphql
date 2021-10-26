@@ -30,7 +30,8 @@ const githubQuery = (pageCount, queryString, paginationKeyword, paginationString
               }
             }
           }
-  ` }
+  `
+    }
 };
 
 export default githubQuery;
